@@ -1,22 +1,15 @@
-import React, {useState, useContext} from 'react';
-import axios, { type AxiosResponse } from 'axios';
+import React, {useState, useContext, useEffect} from 'react';
 import { Link } from 'react-router-dom';
-import { PlacesContext } from './PlacesContext';
+import { PlacesContext, type Place } from './PlacesContext';
+import axios from './mockAPI/mockedAxios';
 
-type Props = {};
-
-interface Place {
-    placeName: string,
-    type: string,
-    address: string
-}
-
-const CreationPage = (props: Props) => {
+const CreationPage = () => {
     const [formData, setFormData] = useState<Place>({
-        placeName: '',
+        name: '',
         type: '',
         address: '',
     });
+
     const { places, setPlaces } = useContext(PlacesContext);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>{
@@ -25,29 +18,36 @@ const CreationPage = (props: Props) => {
     }
 
     const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        const response: AxiosResponse = await axios.post('/api/place', formData);
-        setPlaces([
-            { formData }, ...places]);
-    }
+    e.preventDefault();
+    try {
+        const response = await axios.post<Place>('/api/place', formData);
+        setPlaces([...places, response.data]);
+        console.log('Submitted successfully' );
+    } catch (error) {
+        console.error('Failed to create place:', error);
+    }};
+
+    useEffect(() => {
+        console.log('Places updated:', places);
+    }, [places]);
 
     return (
         <div >
             <form >
                 <label >Place Name:
-                    <input type="text" name='name' />
+                    <input type="text" name="name" value={formData.name} onChange={handleChange} />
                 </label>
 
                 <label >Place Type:
-                   <input type="text" name='type' /> 
+                   <input type="text" name='type' value={formData.type} onChange={handleChange} />
                 </label>
                 
                 <label >Place Address:
-                    <input type="text" name='address' />
+                    <input type="text" name='address' value={formData.address} onChange={handleChange} />
                 </label>
                 
                 <button onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleSubmit(e)}>Submit</button>
-            <Link to="/places"></Link>
+            <Link to="/places">Places</Link>
             </form>
 
         </div>

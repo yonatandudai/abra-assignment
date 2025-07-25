@@ -1,7 +1,7 @@
 import { createContext, useState, type ReactNode } from "react";
 
-export type Place = {
-    name: string;
+export interface Place {
+    name: string;   
     type: string;
     address: string;  
 };
